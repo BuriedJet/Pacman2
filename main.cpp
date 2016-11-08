@@ -1,8 +1,11 @@
 /*
 * Edited By Jet, weaZen, Moriarty
-* 2016/11/07 23:55
+* 2016/11/09 02:13
 */
 //这是一个爱射的版本
+//较上一版本变化：去掉了所有PROFILING
+//修改了bool GameField::canDggbHit(Direction dir, int myID, int rivalID)
+
 /*
 * 相较处男变化：
 * 1. 增加DisDir结构，用于同时返回distance和
@@ -22,10 +25,9 @@
 *   bool GameField::canDggbHit(int myID, int rivalID)
 *       判断myID是否能立刻射到rivalID（假设对方不动）
 *   bool GameField::canDggbHit(Direction dir, int myID, int rivalID)
-*       判断myID往dir走后是否能射到rivalID（假设rivalID不动）
-*       （写注释的时候，我意识到了这个函数的问题）
+*       判断myID往dir走后是否能被rivalID射到
 *   bool GameField::canDggbHitR(Direction dir, int myID, int rivalID)
-*       判断rivalID往dir走后是否能射到myID（假设myID不动）
+*       判断rivalID往dir走后是否能被myID射到
 *   调用上述任何一个函数，若返回true时，会更新gameField.hitDir的值
 *   用于传回可以射的方向。
 * 
@@ -66,10 +68,8 @@
 #define INVALID_EVAL        -9999999
 
 //#define DEBUG
-//#define PROFILING
 //#define PRESET
 
-// 你也可以选用 using namespace std; 但是会污染命名空间
 using std::cin;
 using std::cout;
 using std::endl;
@@ -85,7 +85,7 @@ namespace Debug
     auto printInfo = false;
     string presetString =
 #ifdef PRESET
-            R"({"requests":[{"GENERATOR_INTERVAL":20,"LARGE_FRUIT_DURATION":10,"LARGE_FRUIT_ENHANCEMENT":10,"SKILL_COST":4,"content":[[16,0,16,16,0,16,16,0,16],[16,16,16,16,0,16,16,16,16],[16,0,16,0,0,0,16,0,16],[16,1,32,0,0,0,32,2,16],[0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[16,4,32,0,0,0,32,8,16],[16,0,16,0,0,0,16,0,16],[16,16,16,16,0,16,16,16,16],[16,0,16,16,0,16,16,0,16]],"height":10,"id":3,"seed":1478532798,"static":[[8,5,1,5,5,5,1,5,2],[0,7,12,5,5,5,6,13,0],[10,31,9,5,1,5,3,31,10],[2,13,4,3,10,9,4,7,8],[12,5,5,2,14,8,5,5,6],[9,5,5,2,11,8,5,5,3],[2,13,1,6,10,12,1,7,8],[10,31,12,5,4,5,6,31,10],[0,7,9,5,5,5,3,13,0],[8,5,4,5,5,5,4,5,2]],"width":9},{"0":{"action":1},"1":{"action":3},"2":{"action":1},"3":{"action":3}},{"0":{"action":0},"1":{"action":3},"2":{"action":2},"3":{"action":3}},{"0":{"action":-1},"1":{"action":2},"2":{"action":0},"3":{"action":0}},{"0":{"action":-1},"1":{"action":1},"2":{"action":1},"3":{"action":1}},{"0":{"action":1},"1":{"action":1},"2":{"action":0},"3":{"action":1}},{"0":{"action":1},"1":{"action":1},"2":{"action":3},"3":{"action":1}},{"0":{"action":1},"1":{"action":0},"2":{"action":-1},"3":{"action":2}},{"0":{"action":1},"1":{"action":1},"2":{"action":3},"3":{"action":1}},{"0":{"action":2},"1":{"action":3},"2":{"action":1},"3":{"action":2}},{"0":{"action":3},"1":{"action":0},"2":{"action":3},"3":{"action":2}},{"0":{"action":2},"1":{"action":0},"2":{"action":-1},"3":{"action":2}},{"0":{"action":2},"1":{"action":0},"2":{"action":-1},"3":{"action":2}},{"0":{"action":2},"1":{"action":0},"2":{"action":-1},"3":{"action":2}},{"0":{"action":1},"1":{"action":3},"2":{"action":1},"3":{"action":1}},{"0":{"action":2},"1":{"action":3},"2":{"action":-1},"3":{"action":3}},{"0":{"action":-1},"1":{"action":0},"2":{"action":-1},"3":{"action":2}},{"0":{"action":-1},"1":{"action":3},"2":{"action":3},"3":{"action":0}},{"0":{"action":-1},"1":{"action":3},"2":{"action":-1},"3":{"action":3}},{"0":{"action":-1},"1":{"action":3},"2":{"action":3},"3":{"action":3}},{"0":{"action":-1},"1":{"action":3},"2":{"action":2},"3":{"action":-1}},{"0":{"action":0},"1":{"action":2},"2":{"action":2},"3":{"action":1}},{"0":{"action":1},"1":{"action":3},"2":{"action":2},"3":{"action":2}},{"0":{"action":3},"1":{"action":1},"2":{"action":1},"3":{"action":2}},{"0":{"action":3},"1":{"action":3},"2":{"action":-1},"3":{"action":1}},{"0":{"action":0},"1":{"action":1},"2":{"action":-1},"3":{"action":0}},{"0":{"action":0},"1":{"action":1},"2":{"action":-1},"3":{"action":0}},{"0":{"action":0},"1":{"action":1},"2":{"action":3},"3":{"action":0}},{"0":{"action":1},"1":{"action":1},"2":{"action":3},"3":{"action":1}},{"0":{"action":1},"1":{"action":1},"2":{"action":0},"3":{"action":1}},{"0":{"action":3},"1":{"action":0},"2":{"action":0},"3":{"action":2}},{"0":{"action":0},"1":{"action":2},"2":{"action":2},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":0},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":2},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":2},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":3},"3":{"action":0}},{"0":{"action":2},"1":{"action":3},"2":{"action":1},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":3},"3":{"action":1}},{"0":{"action":1},"1":{"action":2},"2":{"action":-1},"3":{"action":2}},{"0":{"action":1},"1":{"action":0},"2":{"action":-1},"3":{"action":3}},{"0":{"action":2},"1":{"action":0},"2":{"action":-1},"3":{"action":-1}},{"0":{"action":0},"1":{"action":0},"2":{"action":-1},"3":{"action":1}},{"0":{"action":3},"1":{"action":0},"2":{"action":-1},"3":{"action":2}},{"0":{"action":3},"1":{"action":3},"2":{"action":-1},"3":{"action":2}},{"0":{"action":1},"1":{"action":2},"2":{"action":-1},"3":{"action":1}},{"0":{"action":0},"1":{"action":2},"2":{"action":-1},"3":{"action":0}},{"0":{"action":1},"1":{"action":2},"2":{"action":5},"3":{"action":0}},{"0":{"action":1},"1":{"action":2},"2":{"action":5},"3":{"action":1}},{"0":{"action":1},"1":{"action":3},"2":{"action":1},"3":{"action":3}},{"0":{"action":1},"1":{"action":3},"2":{"action":1},"3":{"action":0}},{"0":{"action":2},"1":{"action":2},"2":{"action":3},"3":{"action":1}},{"0":{"action":1},"1":{"action":3},"2":{"action":1},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":1},"3":{"action":1}},{"0":{"action":3},"1":{"action":3},"2":{"action":3},"3":{"action":3}},{"0":{"action":2},"1":{"action":1},"2":{"action":2},"3":{"action":2}}],"responses":[{"action":3,"tauntText":""},{"action":3,"tauntText":""},{"action":0,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":2,"tauntText":""},{"action":1,"tauntText":""},{"action":2,"tauntText":""},{"action":2,"tauntText":""},{"action":2,"tauntText":""},{"action":2,"tauntText":""},{"action":2,"tauntText":""},{"action":1,"tauntText":""},{"action":3,"tauntText":""},{"action":2,"tauntText":""},{"action":0,"tauntText":""},{"action":3,"tauntText":""},{"action":3,"tauntText":""},{"action":-1,"tauntText":""},{"action":1,"tauntText":""},{"action":2,"tauntText":""},{"action":2,"tauntText":""},{"action":1,"tauntText":""},{"action":0,"tauntText":""},{"action":0,"tauntText":""},{"action":0,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":2,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":0,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":2,"tauntText":""},{"action":3,"tauntText":""},{"action":-1,"tauntText":""},{"action":1,"tauntText":""},{"action":2,"tauntText":""},{"action":2,"tauntText":""},{"action":1,"tauntText":""},{"action":0,"tauntText":""},{"action":0,"tauntText":""},{"action":1,"tauntText":""},{"action":3,"tauntText":""},{"action":0,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":1,"tauntText":""},{"action":3,"tauntText":""},{"action":2,"tauntText":""}]})";
+            R"()";
 #else
             "";
 #endif
@@ -427,19 +427,12 @@ namespace Pacman
         // Jet:把PopState包装了一下 方便一些
         void RollBack(int turnCount = -1)
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
             if (turnCount < 0)
                 while (PopState());
             else
                 for (int i = 0; i < turnCount; i++)
                     if (!PopState())
                         break;
-#ifdef PROFILING
-            auto &d = Debug::debugData["profiling"]["RollBack()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
         }
 
         // 判断指定玩家向指定方向移动是不是合法的（没有撞墙且没有踩到豆子产生器）
@@ -463,9 +456,6 @@ namespace Pacman
         // 是终局的话就返回false
         bool NextTurn()
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
             auto& bt = backtrack[turnID];
             memset(&bt, 0, sizeof bt);
 
@@ -719,10 +709,6 @@ namespace Pacman
             }
 
             ++turnID;
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["NextTurn()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
             // 是否只剩一人？
             if (aliveCount <= 1)
             {
@@ -755,9 +741,6 @@ namespace Pacman
 
         char Distance(const FieldProp& startPos, const FieldProp& endPos)
         {
-#ifdef PROFILING
-            auto startTime = clock();
-#endif
             if (startPos == endPos)
                 return distance[startPos.row][startPos.col][endPos.row][endPos.col] = 0;
 
@@ -847,10 +830,6 @@ namespace Pacman
                 ++nowFlag;
             }
 
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["Distance()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
             return distance[startPos.row][startPos.col][endPos.row][endPos.col] = ret;
         }
 
@@ -867,10 +846,6 @@ namespace Pacman
         template<typename __Pred>
         DisDir GetTo(int myID, __Pred pr, char forbiddenDirs = '\0')
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
-
             auto startPos = players[myID];
             if (pr(*this, startPos) && !(forbiddenDirs & 1))
                 return atPos;
@@ -924,13 +899,7 @@ namespace Pacman
                     tmpDir = tmpDir == stay ? d : ((rand() % ++tmp) ? tmpDir : d);
 
             if (tmpDir != stay)
-            {
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["GetTo()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return DisDir(minDis, tmpDir);
-            }
 
             //初始化广搜数组
             for (int i = 0; i < height; i++)
@@ -1002,11 +971,6 @@ namespace Pacman
                 curPos.col = (curPos.col - dx[dir] + width) % width;
             }
 
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["GetTo()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
-
             return DisDir(dis, dir);
         }
 
@@ -1021,11 +985,6 @@ namespace Pacman
                              return gameField.fieldContent[pos.row][pos.col] & target;
                          }),
                          forbiddenDirs);
-        }
-
-        bool atMaxCluster(const FieldProp& pos)
-        {
-            return genInfo[pos.row][pos.col].fruitClusterCount == maxCluster;
         }
 
         DisDir GetToNearbyGenerator(int myID, char forbiddenDirs = '\0')
@@ -1051,9 +1010,6 @@ namespace Pacman
 
         bool canDggbHit(int myID, int rivalID)
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
             const auto& me = players[myID], rival = players[rivalID];
             const int myR = me.row, myC = me.col;
             const int riR = rival.row, riC = rival.col;
@@ -1066,20 +1022,10 @@ namespace Pacman
                 {
                     r = (r + 1 + height) % height;
                     if (r == myR)
-                    {
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return false;
-                    }
                     if (r == riR)
                     {
                         hitDir = shootDown;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
@@ -1090,17 +1036,9 @@ namespace Pacman
                     if (r == riR)
                     {
                         hitDir = shootUp;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return false;
             } else if (myR == riR)
             {
@@ -1109,20 +1047,10 @@ namespace Pacman
                 {
                     c = (c + 1 + width) % width;
                     if (c == myC)
-                    {
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return false;
-                    }
                     if (c == riC)
                     {
                         hitDir = shootRight;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
@@ -1133,31 +1061,16 @@ namespace Pacman
                     if (c == riC)
                     {
                         hitDir = shootLeft;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return false;
             }
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
             return false;
         }
 
         bool canDggbHit(Direction dir, int myID, int rivalID)
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
             const auto& me = players[myID], rival = players[rivalID];
             int myR, myC;
             if (dir == stay)
@@ -1169,103 +1082,60 @@ namespace Pacman
             {
                 if (myR == riR)
                     return false;
-                int r = myR;
-                while (!(fieldStatic[r][myC] & direction2OpposingWall[down]))
+                int r = riR;
+                while (!(fieldStatic[r][riC] & direction2OpposingWall[down]))
                 {
                     r = (r + 1 + height) % height;
+                    if (r == riR)
+                        return false;
                     if (r == myR)
                     {
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
-                        return false;
-                    }
-                    if (r == riR)
-                    {
                         hitDir = shootDown;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-                r = myR;
-                while (!(fieldStatic[r][myC] & direction2OpposingWall[up]))
+                r = riR;
+                while (!(fieldStatic[r][riC] & direction2OpposingWall[up]))
                 {
                     r = (r - 1 + height) % height;
-                    if (r == riR)
+                    if (r == myR)
                     {
                         hitDir = shootUp;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return false;
             } else if (myR == riR)
             {
-                int c = myC;
-                while (!(fieldStatic[myR][c] & direction2OpposingWall[right]))
+                int c = riC;
+                while (!(fieldStatic[riR][c] & direction2OpposingWall[right]))
                 {
                     c = (c + 1 + width) % width;
+                    if (c == riC)
+                        return false;
                     if (c == myC)
                     {
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
-                        return false;
-                    }
-                    if (c == riC)
-                    {
                         hitDir = shootRight;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-                c = myC;
+                c = riC;
                 while (!(fieldStatic[myR][c] & direction2OpposingWall[left]))
                 {
                     c = (c - 1 + width) % width;
-                    if (c == riC)
+                    if (c == myC)
                     {
                         hitDir = shootLeft;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return false;
             }
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
             return false;
         }
 
         bool canDggbHitR(Direction dir, int myID, int rivalID)
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
             const auto& me = players[myID], rival = players[rivalID];
             int riR, riC;
             if (dir == stay)
@@ -1282,20 +1152,10 @@ namespace Pacman
                 {
                     r = (r + 1 + height) % height;
                     if (r == myR)
-                    {
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return false;
-                    }
                     if (r == riR)
                     {
                         hitDir = shootDown;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
@@ -1306,17 +1166,9 @@ namespace Pacman
                     if (r == riR)
                     {
                         hitDir = shootUp;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return false;
             } else if (myR == riR)
             {
@@ -1325,20 +1177,10 @@ namespace Pacman
                 {
                     c = (c + 1 + width) % width;
                     if (c == myC)
-                    {
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return false;
-                    }
                     if (c == riC)
                     {
                         hitDir = shootRight;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
@@ -1349,23 +1191,11 @@ namespace Pacman
                     if (c == riC)
                     {
                         hitDir = shootLeft;
-#ifdef PROFILING
-                        auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-                    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                         return true;
                     }
                 }
-#ifdef PROFILING
-                auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-            d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
                 return false;
             }
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["canDggbHit()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
             return false;
         }
 
@@ -1373,9 +1203,6 @@ namespace Pacman
         //Jet: 分析HOTSPOT
         void MapAnalyze()
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
             //分析PathInfo
             FieldProp deadSpot[40];
             int degree[FIELD_MAX_HEIGHT][FIELD_MAX_HEIGHT];
@@ -1511,11 +1338,6 @@ namespace Pacman
             cout << endl;
         }
 #endif // DEBUG
-
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["MapAnalyze()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
         }
 
         // 读取并解析程序输入，本地调试或提交平台使用都可以。
@@ -1634,17 +1456,8 @@ namespace Pacman
         void WriteOutput(Direction action, string& tauntText,
                          Json::Value& data, Json::Value& globalData, Json::Value& debugData) const
         {
-#ifdef PROFILING
-            auto &&startTime = clock();
-#endif
 
             debugData["seed"] = to_string(seed);
-
-#ifdef PROFILING
-            auto &&d = Debug::debugData["profiling"]["WriteOutput()"];
-        d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
-
             Json::Value ret;
             ret["response"]["action"] = action;
             ret["response"]["tauntText"] = tauntText;
@@ -2290,9 +2103,6 @@ namespace AI
 
     int GreedyEval(Pacman::GameField& gameField, int myID)
     {
-#ifdef PROFILING
-        auto &&startTime = clock();
-#endif
         int minMaxClusterDis = 100;
         int strengthSum = 0;
         if (gameField.players[myID].dead)
@@ -2330,10 +2140,6 @@ namespace AI
         else
             e += gameField.players[myID].strength -
                  gameField.LARGE_FRUIT_ENHANCEMENT; // +gameField.players[myID].powerUpLeft;
-#ifdef PROFILING
-        auto &&d = Debug::debugData["profiling"]["GreedyEval()"];
-    d = d.asDouble() + double(clock() - startTime) / CLOCKS_PER_SEC;
-#endif
         return e;
     }
 
