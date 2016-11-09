@@ -35,8 +35,8 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="680">
-              <caret line="2249" column="13" selection-start-line="2249" selection-start-column="13" selection-end-line="2249" selection-end-column="13" />
+            <state relative-caret-position="659">
+              <caret line="2254" column="34" selection-start-line="2254" selection-start-column="34" selection-end-line="2254" selection-end-column="34" />
               <folding>
                 <element signature="e#1004#1022#0" expanded="true" />
                 <element signature="e#1834#2487#0" expanded="false" />
@@ -420,7 +420,7 @@
       <workItem from="1478504768849" duration="516000" />
       <workItem from="1478506366340" duration="14052000" />
       <workItem from="1478625612008" duration="2508000" />
-      <workItem from="1478724052423" duration="1236000" />
+      <workItem from="1478724052423" duration="1888000" />
     </task>
     <task id="LOCAL-00001" summary="Original (20)">
       <created>1478627656930</created>
@@ -471,11 +471,18 @@
       <option name="project" value="LOCAL" />
       <updated>1478727785422</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="改了一下要不要射的">
+      <created>1478727790075</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1478727790075</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="48933000" />
+    <option name="totallyTimeSpent" value="49585000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1920" height="1056" extended-state="6" />
@@ -698,8 +705,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="2249" column="13" selection-start-line="2249" selection-start-column="13" selection-end-line="2249" selection-end-column="13" />
+        <state relative-caret-position="659">
+          <caret line="2254" column="34" selection-start-line="2254" selection-start-column="34" selection-end-line="2254" selection-end-column="34" />
           <folding>
             <element signature="e#1004#1022#0" expanded="true" />
             <element signature="e#1834#2487#0" expanded="false" />
