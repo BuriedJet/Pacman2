@@ -839,6 +839,14 @@ namespace Pacman
             return Distance(players[alphaID], players[betaID]);
         }
 
+        int Distance(Direction dir, int alphaID, int betaID)
+        {
+            FieldProp p1 = players[alphaID];
+            p1.row = (p1.row + dy[dir] + height) % height;
+            p1.col = (p1.col + dx[dir] + width) % width;
+            return Distance(p1, players[betaID]);
+        }
+
         // weaZen: 返回distance<<3 + dir + 1以便决策
         // Jet: 改写了个模版
         Direction dirInfo[FIELD_MAX_HEIGHT][FIELD_MAX_WIDTH];
@@ -2225,7 +2233,8 @@ namespace AI
                     {
                         if (gameField.ActionValid(_, dir)
                             && gameField.canEat(_, dir)
-                            && gameField.Distance(_, myID) >= 2)
+                            && gameField.Distance(_, myID) >= 2
+                            && !(gameField.Distance(dir, _, myID) == 1 && Helpers::DeltaATK(gameField, myID, _) > 0))
                             vDir.push_back(dir);
                     }
                     if (vDir.size() == 1 && gameField.canDggbHitR(vDir[0], myID, _))
